@@ -1,6 +1,6 @@
 ## DESCRIPTION
 
-Anyway, welcome to the furthest corner of my GitHub repository.  Here is where I keep scripts with basic coding and vocabulary exercises, so that I can use them as easy reference when some bit of coding knowledge is slipping my mind.
+Welcome to the furthest corner of my GitHub repository.  Here is where I keep scripts with basic coding and vocabulary exercises, so that I can use them as easy reference when some bit of coding knowledge is slipping my mind.
 
 
 ## Vocabulary Todo
