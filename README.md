@@ -8,13 +8,11 @@ Welcome to the furthest corner of my GitHub repository.  Here is where I keep sc
 
 #### Vocabulary (In priority order)
 
-|Competency		|Status		|Notes					|
-|SQL			|In Progress	|					|
-|Pandas			|		|					|
-|Matplotlib		|		|					|
-|Sklearn		|		|Breaks this up into subsections	|
-|Built-in Python	|		|Breaks this up into subsections	|
-|Numpy			|		|					|
-
-
-
+|Competency |Status     |Notes|
+|:-         |:-         |:-   |
+|SQL        |In Progress|     |
+|Pandas     |           |     |
+|Matplotlib |           |     |
+|Sklearn    |           |Breaks this up into subsections|
+|Py. methods|           |Breaks this up into subsections|
+|Numpy      |           ||
