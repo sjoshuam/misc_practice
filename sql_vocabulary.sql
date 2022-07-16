@@ -52,9 +52,15 @@ UPDATE person SET place_id = 3 WHERE place_id IS NULL;
 DELETE FROM person WHERE full_name = 'Gorblatt';
 
 
+## modifying key constraints
+# SHOW CREATE TABLE person; # get name for foreign key here
+ALTER TABLE person DROP FOREIGN KEY person_ibfk_1;
+
+
 ## SELECT - FROM, GROUP BY
-DROP VIEW IF EXISTS state_count;
-CREATE VIEW state_count as SELECT state, COUNT(city) as city_count FROM place GROUP BY state;
+DROP VIEW IF EXISTS temp;
+CREATE VIEW temp as SELECT state, COUNT(city) AS cities FROM place GROUP BY state;
+
     
 ## LOAD DATA LOCAL INFILE
 DROP TABLE IF EXISTS more_people;
@@ -82,32 +88,62 @@ UPDATE more_people SET person_id = NULL WHERE person_id < 1;
 SET SQL_SAFE_UPDATES = 1;
 
 
-## UNION, ORDER BY
-(SELECT * FROM person LIMIT 3) UNION (SELECT * FROM MORE_PEOPLE LIMIT 3) ORDER BY place_id;
+## UNION, ORDER BY (NOTE: no INTERSECT  OR MINUS operatorS in mysql, use UNION ALL to include duplicates)
+DROP TABLE IF EXISTS all_people;
+CREATE TABLE all_people AS 
+	SELECT full_name, place_id FROM person
+    UNION 
+    SELECT full_name, place_id FROM more_people
+    ORDER BY full_name;
 
 
-## UNION ALL, WITH - AS
+## LEFT JOIN AUGMENTING AN EXISTING TABLE (NOTE: can use USING instead of ON if colnames identical)
+DROP TABLE IF EXISTS temp_table;
 
-WITH dup_names AS (
-	SELECT full_name, COUNT(full_name) AS n FROM
-		((SELECT full_name FROM more_people) UNION ALL (SELECT full_name FROM person)) as x
-	GROUP BY full_name HAVING n > 1
-    )
-SELECT *  FROM dup_names;
+CREATE TABLE temp_table AS (
+	SELECT * FROM all_people
+	LEFT JOIN
+    (SELECT person_id, full_name AS fn FROM person) as p2
+    ON all_people.full_name = p2.fn
+    );
+
+DROP TABLE IF EXISTS all_people;
+CREATE TABLE all_people AS SELECT person_id, full_name, place_id FROM temp_table;
+
+ALTER TABLE all_people MODIFY COLUMN person_id INT PRIMARY KEY NOT NULL AUTO_INCREMENT;
 
 
+##  INNER / LEFT JOIN (NOTE: no OUTER join in mysql)
+DROP TABLE IF EXISTS person_place;
+CREATE TABLE person_place AS (
+	SELECT * FROM all_people
+    LEFT JOIN
+   (SELECT * FROM place) as x
+    USING (place_id)
+    );
 
-## INNER JOIN
+DROP VIEW IF EXISTS temp;
+CREATE VIEW temp AS (
+	SELECT * FROM person_place
+    INNER JOIN
+    (SELECT full_name FROM more_people LIMIT 3) as x
+    USING (full_name)
+	);
 
-## OUTER JOIN
 
-## LEFT JOIN
+## PARTITION BY, INDEX  (for optimization purposes)
+ALTER TABLE all_people PARTITION BY RANGE(person_id) (
+	PARTITION p0 VALUES LESS THAN (10),
+    PARTITION p1 VALUES LESS THAN MAXVALUE
+	);
+    
+    
+CREATE INDEX place_idx ON person_place(city);
+##SHOW INDEX FROM person_place; # show existing indices
 
-## RIGHT JOIN
+DROP VIEW IF EXISTS temp;
+CREATE VIEW temp AS (SELECT * FROM all_people PARTITION (p1));
 
-## WITH
-
-## PARTITION BY
 
 ## ROWS BETWEEN
 
@@ -117,4 +153,6 @@ SELECT *  FROM dup_names;
 
 ## AVG(), COUNT(), MIN(), MAX()
 
-
+## SHOW
+SHOW DATABASES;
+SHOW TABLES;
